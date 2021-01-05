@@ -8,7 +8,8 @@ from option import args
 from trainer import Trainer
 
 torch.manual_seed(args.seed)
-checkpoint = utility.checkpoint(args)
+checkpoint = utility.checkpoint(args)  # load model from experiment/xxx
+
 
 def main():
     global model
@@ -28,6 +29,7 @@ def main():
                 t.test()
 
             checkpoint.done()
+
 
 if __name__ == '__main__':
     main()
