@@ -23,7 +23,8 @@ Here shows the training result.
 | EDSRx3          | Bicubic | L1-norm |       V       | 25.395 |
 | EDSRx3          | Bicubic | L2-norm |       V       |  |
 | EDSRx3+Dilation | Bicubic | L1-norm |       V       | 25.439 |
-![img img img img img img]()
+
+![](/figs/Result.png)
 
 # Prepare data
 1. Download the training data and testing data [here](https://drive.google.com/drive/u/3/folders/1H-sIY7zj42Fex1ZjxxSC3PV1pK4Mij6x).
