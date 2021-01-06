@@ -1,8 +1,10 @@
 import os
 from data import srdata
 
+
 class DIV2K(srdata.SRData):
     def __init__(self, args, name='DIV2K', train=True, benchmark=False):
+        self.args = args
         data_range = [r.split('-') for r in args.data_range.split('/')]
         if train:
             data_range = data_range[0]
@@ -27,6 +29,7 @@ class DIV2K(srdata.SRData):
     def _set_filesystem(self, dir_data):
         super(DIV2K, self)._set_filesystem(dir_data)
         self.dir_hr = os.path.join(self.apath, 'DIV2K_train_HR')
-        self.dir_lr = os.path.join(self.apath, 'DIV2K_train_LR_bicubic')
-        if self.input_large: self.dir_lr += 'L'
-
+        self.dir_lr = os.path.join(
+            self.apath, 'DIV2K_train_LR_{}'.format(self.args.data_postfix))
+        if self.input_large:
+            self.dir_lr += 'L'

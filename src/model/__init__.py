@@ -6,6 +6,7 @@ import torch.nn as nn
 import torch.nn.parallel as P
 import torch.utils.model_zoo
 
+
 class Model(nn.Module):
     def __init__(self, args, ckp):
         super(Model, self).__init__()
@@ -124,20 +125,24 @@ class Model(nn.Module):
             for i in range(0, 4, n_GPUs):
                 x = [x_chop[i:(i + n_GPUs)] for x_chop in x_chops]
                 y = P.data_parallel(self.model, *x, range(n_GPUs))
-                if not isinstance(y, list): y = [y]
+                if not isinstance(y, list):
+                    y = [y]
                 if not y_chops:
-                    y_chops = [[c for c in _y.chunk(n_GPUs, dim=0)] for _y in y]
+                    y_chops = [[c for c in _y.chunk(
+                        n_GPUs, dim=0)] for _y in y]
                 else:
                     for y_chop, _y in zip(y_chops, y):
                         y_chop.extend(_y.chunk(n_GPUs, dim=0))
         else:
             for p in zip(*x_chops):
                 y = self.forward_chop(*p, shave=shave, min_size=min_size)
-                if not isinstance(y, list): y = [y]
+                if not isinstance(y, list):
+                    y = [y]
                 if not y_chops:
                     y_chops = [[_y] for _y in y]
                 else:
-                    for y_chop, _y in zip(y_chops, y): y_chop.append(_y)
+                    for y_chop, _y in zip(y_chops, y):
+                        y_chop.append(_y)
 
         h *= scale
         w *= scale
@@ -157,13 +162,15 @@ class Model(nn.Module):
             _y[..., bottom, left] = y_chop[2][..., bottom_r, left]
             _y[..., bottom, right] = y_chop[3][..., bottom_r, right_r]
 
-        if len(y) == 1: y = y[0]
+        if len(y) == 1:
+            y = y[0]
 
         return y
 
     def forward_x8(self, *args, forward_function=None):
         def _transform(v, op):
-            if self.precision != 'single': v = v.float()
+            if self.precision != 'single':
+                v = v.float()
 
             v2np = v.data.cpu().numpy()
             if op == 'v':
@@ -174,27 +181,30 @@ class Model(nn.Module):
                 tfnp = v2np.transpose((0, 1, 3, 2)).copy()
 
             ret = torch.Tensor(tfnp).to(self.device)
-            if self.precision == 'half': ret = ret.half()
-
+            if self.precision == 'half':
+                ret = ret.half()
             return ret
 
         list_x = []
         for a in args:
             x = [a]
-            for tf in 'v', 'h', 't': x.extend([_transform(_x, tf) for _x in x])
+            for tf in 'v', 'h', 't':
+                x.extend([_transform(_x, tf) for _x in x])
 
+            # [a, a_v, a_h, a_v_h, a_t, a_v_t, a_h_t, a_v_h_t]
             list_x.append(x)
-
         list_y = []
         for x in zip(*list_x):
             y = forward_function(*x)
-            if not isinstance(y, list): y = [y]
+            if not isinstance(y, list):
+                y = [y]
             if not list_y:
                 list_y = [[_y] for _y in y]
             else:
-                for _list_y, _y in zip(list_y, y): _list_y.append(_y)
-
+                for _list_y, _y in zip(list_y, y):
+                    _list_y.append(_y)
         for _list_y in list_y:
+
             for i in range(len(_list_y)):
                 if i > 3:
                     _list_y[i] = _transform(_list_y[i], 't')
@@ -202,8 +212,9 @@ class Model(nn.Module):
                     _list_y[i] = _transform(_list_y[i], 'h')
                 if (i % 4) % 2 == 1:
                     _list_y[i] = _transform(_list_y[i], 'v')
-
+        assert False
         y = [torch.cat(_y, dim=0).mean(dim=0, keepdim=True) for _y in list_y]
-        if len(y) == 1: y = y[0]
+        if len(y) == 1:
+            y = y[0]
 
         return y

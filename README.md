@@ -17,12 +17,18 @@ DIV2K/
 ```
 
 Here shows the training result.
-| model           | LR      | Loss_fn | self-ensemble | score  |
-|-----------------|---------|---------|---------------|--------|
-| EDSRx3          | Bicubic | L1-norm |       X       | 25.289 |
-| EDSRx3          | Bicubic | L1-norm |       V       | 25.395 |
-| EDSRx3          | Bicubic | L2-norm |       V       |  |
-| EDSRx3+Dilation | Bicubic | L1-norm |       V       | 25.439 |
+- batch-size 16
+- epoch 300 from scratch
+| model               | LR-Interpolation | Loss_fn | self-ensemble | PSNR   |
+|---------------------|------------------|---------|---------------|--------|
+| EDSRx3              | Bicubic          | L1-norm |       X       | 25.289 |
+| EDSRx3              | Bicubic          | L1-norm |       V       | 25.395 |
+| EDSRx3              | Bicubic          | L2-norm |       V       | 25.450 |
+| EDSRx3+Dilated Conv | Bicubic          | L1-norm |       V       | 25.439 |
+| EDSRx3              | Random           | L1-norm |       V       | 25.463 |
+| EDSRx3+Dilated Conv | Random           | L1-norm |       V       | 25.671 |
+| EDSRx3+Dilated Conv | Random           | L2-norm |       V       | 25.539 |
+Where Unknown means that the interpolation algorithm for each image is randomly select from [`NEAREST`, `LINEAR`, `CUBIC`, `AREA`]
 
 ![](/figs/Result.png)
 
